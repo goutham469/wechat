@@ -1,0 +1,8 @@
+1) Register - via - google , manual OTP verification
+2) Login - via - google , OTP verification , username+password
+3) User Launchpad
+3.1) User Profile - update details form
+3.2) Search users
+3.3) Chat with users - when chatting with new users , send the user a notification , if he accepts the chat , then the chat is created , if he declines , then the chat is cancelled
+3.4) in that process only if the chatId exists , then use it , else create chatId with two usernames hashing 
+3.5) How to create chatid sort the 2 usernames , then hash them , then combine them.

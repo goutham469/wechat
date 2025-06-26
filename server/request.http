@@ -1,0 +1,61 @@
+POST http://localhost:4000/user/login?login_type=email
+Content-Type: application/json
+
+{
+    "email":"uppinurigouthamreddy@gmail.com"
+}
+
+### OAuth
+POST http://localhost:4000/user/login?login_type=OAuth
+Content-Type: application/json
+
+{
+    "email":"uppinurigouthamreddy@gmail.com"
+}
+
+### Register
+POST http://localhost:4000/user/register
+Content-Type: application/json
+
+{
+    "email":"uppinurigouthamreddy@gmail.com",
+    "username":"goutham469",
+    "name":"Goutham reddy"
+}
+### ADMIN SQL-QUERY
+POST http://localhost:4000/admin/SQL-QUERY
+Content-Type: application/json
+
+{
+    "query":"SELECT * FROM user WHERE id=11"
+}
+
+### ADMIN LOGS DELETE
+DELETE http://localhost:4000/admin/delete-logs
+Content-Type: application/json
+
+{
+    "ids":[143]
+}
+### GET chats
+POST http://localhost:4000/user/get-chat
+Content-Type: application/json
+
+{
+    "u1":1,
+    "u2":2
+}
+### GET user all chats
+GET http://localhost:4000/user/get-all-chats?userId=1
+###
+POST http://localhost:4000/user/send-message
+Content-Type: application/json
+
+{
+    "chatId":1,
+    "sender":1,
+    "message":{
+        "type":"p",
+        "value":"hi there"
+    }
+}
