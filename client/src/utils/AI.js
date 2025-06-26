@@ -1,9 +1,9 @@
 import { GoogleGenAI } from '@google/genai';
 
 
-const GOOGLE_GEN_AI_API_KEY = "AIzaSyAkJNyzl0m2fcr2XZu4ch_RxYw3lnFaPfA";
+const { VITE_GOOGLE_GEN_AI_API_KEY } = import.meta.env;
 
-const ai = new GoogleGenAI({ apiKey:GOOGLE_GEN_AI_API_KEY })
+const ai = new GoogleGenAI({ apiKey:VITE_GOOGLE_GEN_AI_API_KEY })
 
 async function generate_username( email , name )
 {
