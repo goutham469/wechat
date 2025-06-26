@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
 
 
 
-app.use( CORS( { origin: [ FORNTEND_URL ] } ) )
+app.use( CORS( { origin: [ FORNTEND_URL , "https://wechat.iamgoutham.in" ] } ) )
 app.use( express.json() )
 
 // routes
