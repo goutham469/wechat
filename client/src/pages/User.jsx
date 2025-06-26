@@ -9,6 +9,7 @@ import Messages from '../components/Messages'
 import socket from '../utils/socket'
 import { IoIosSettings } from 'react-icons/io'
 import { FaSearch } from 'react-icons/fa'
+import { registerServiceWorker, requestNotificationPermission, subscribeToPush } from '../utils/pushNotification'
 
 function User() {
   const navigate = useNavigate()
@@ -51,6 +52,24 @@ function User() {
       }
     }
   }, [user, isLoading, navigate])
+
+  useEffect(()=>{
+    const setupPushNotifications = async () => {
+      await registerServiceWorker();
+
+      const permissionGranted = await requestNotificationPermission();
+
+      try{
+        if(permissionGranted){
+          await subscribeToPush( user.id )
+        }
+      }catch(err){
+        console.log(`Error registering notifications => error : ${err.message}`)
+      }
+    }
+
+    setupPushNotifications()
+  },[])
 
   if (isLoading) {
     return (

@@ -8,6 +8,7 @@ const login_verification_template = require("../templates/loginWithEmail");
 const { logger } = require("../utils/logger");
 const { checkChatInstanceExistence, getChatMessagesWithOtherUserByPagination, createChatInstance, getUserChats, getChatMessagesByChatIdByPagination } = require("../controllers/chat.controller");
 const { insertMessage } = require("../controllers/message.controller");
+const { default: webPush } = require("../utils/webpush");
 const userRouter = express.Router();
 
 userRouter.get("/", async (req, res) => {
@@ -221,5 +222,36 @@ userRouter.post("/send-message" , async (req,res) => {
         })
     }
 })
+
+userRouter.post("/subscribe", async (req, res) => {
+    try {
+        const { subscription, userId } = req.body;
+
+        const [userResult] = await pool.query("SELECT sns_subscriptions FROM user WHERE id = ?" , [ userId ] );
+        
+        const user = userResult[0];
+        const currentSubs = user?.sns_subscriptions ? JSON.parse(user.sns_subscriptions) : [];
+
+        const subscriptions = new Set(currentSubs);
+        subscriptions.add(subscription);
+
+        await pool.query( "UPDATE user SET sns_subscriptions = ? WHERE id = ?", [JSON.stringify([...subscriptions]), userId] );
+
+        const payload = JSON.stringify({
+            title:"Welcome to WeChat",
+            message:"your new messaging platform..."
+        })
+        
+        webPush.sendNotification( subscription , payload )
+
+        res.send({ success: true });
+
+    } catch (err) {
+        res.send({
+            success: false,
+            error: err.message
+        });
+    }
+});
 
 module.exports = userRouter;
