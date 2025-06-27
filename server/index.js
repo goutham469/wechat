@@ -27,9 +27,9 @@ io.on("connection", (socket) => {
     logger( { message:`new socket connection added ,Socket_id = ${socket.id}` , time:new Date() , ip : socket.handshake.address } )
 
     // Assume frontend emits "add-user" with username after auth
-    socket.on("add-user", (user_id) => {
+    socket.on("add-user", async (user_id) => {
         const existence = online_users.find( obj => obj.user_id == user_id );
-        updateUserAsOnline( user_id )
+        await updateUserAsOnline( user_id )
 
         if(!existence){
             online_users.push({ user_id:user_id , socket_id: socket.id });
@@ -67,12 +67,13 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
         console.log("User disconnected: " + socket.id);
-        const index = online_users.findIndex(u => u.socket_id === socket.id);
-        updateUserAsOffline( online_users[index].user_id )
+        const index = online_users.findIndex(u => u.socket_id == socket.id);
+        console.log(index)
 
-        if (index !== -1) {
+        if (index != -1) {
+            await updateUserAsOffline( online_users[index].user_id )
             online_users.splice(index, 1);
             logger( { message:`A user disconnected socketId=${socket.id}` , time:new Date() , ip : socket.handshake.address } )
         }
