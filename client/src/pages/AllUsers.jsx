@@ -35,6 +35,7 @@ function AllUsers() {
           <th style={{border:"1px solid black"}}>last_login</th>
           <th style={{border:"1px solid black"}}>dob</th>
           <th style={{border:"1px solid black"}}>online_status</th>
+          <th style={{border:"1px solid black"}}>SNS</th>
         </thead>
         <tbody>
           {
@@ -49,6 +50,13 @@ function AllUsers() {
               <td style={{border:"1px solid black"}}>{ convert_time(user.last_login) }</td>
               <td style={{border:"1px solid black"}}>{ user.dob ? convert_time(user.dob) : "Not Given" }</td>
               <td style={{border:"1px solid black"}}>{user.online_status}</td>
+              <td style={{border:"1px solid black"}}>
+                <pre>
+                  {
+                    JSON.parse( user.sns_subscriptions )?.map( sub => <p>{sub.endpoint}</p> )
+                  }
+                </pre>
+              </td>
             </tr> )
           }
         </tbody>

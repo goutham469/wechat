@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 const { VITE_SERVER_URL , VITE_VAPID_PUBLIC_KEY } = import.meta.env; 
 
 export const registerServiceWorker = async () => 
@@ -29,30 +31,42 @@ export const requestNotificationPermission = async () =>
     return false;
 };
 
-export const subscribeToPush = async ( userId ) => 
-{
-    const registration = await navigator.serviceWorker.ready;
-    
-    const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array( VITE_VAPID_PUBLIC_KEY ),
-    });
+export const subscribeToPush = async (userId) => {
+  const registration = await navigator.serviceWorker.ready;
 
-    // Send subscription data to backend
-    let response = await fetch(`${VITE_SERVER_URL}/user/subscribe`, {
-        method: "POST",
-        body: JSON.stringify({ subscription:subscription , userId:userId}),
-        headers: { "Content-Type": "application/json" },
-    });
+  // 🔍 Get existing subscription if any
+  const existingSubscription = await registration.pushManager.getSubscription();
 
-    response = await response.json()
-    if(response.success){
-        alert("Thanks for subscribing ...")
-    }else{
-        alert(`Your Subscription failed, due to ${response.error} ...`)
-    }
-    return subscription;
+  if (existingSubscription) {
+    // ❌ Unsubscribe the old one before creating a new one
+    await existingSubscription.unsubscribe();
+    console.log("🧹 Unsubscribed old push subscription");
+  }
+
+  // ✅ Now safely subscribe with the new key
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(VITE_VAPID_PUBLIC_KEY),
+  });
+
+  // Send to backend
+  const response = await fetch(`${VITE_SERVER_URL}/user/subscribe`, {
+    method: "POST",
+    body: JSON.stringify({ subscription, userId }),
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    // toast.success("Thanks for subscribing...");
+  } else {
+    toast.error(`Subscription failed: ${result.error}`);
+  }
+
+  return subscription;
 };
+
 
 // Utility function to convert VAPID key
 const urlBase64ToUint8Array = (base64String) => {
