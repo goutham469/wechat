@@ -9,7 +9,8 @@ const adminRouter = require("./routes/admin.route")
 const { logger } = require("./utils/logger")
 const { insertMessage } = require("./controllers/message.controller")
 const { updateUserAsOnline, updateUserAsOffline } = require("./controllers/user.controller")
-const { SNS_service } = require("./utils/SNS_service")
+const { SNS_message_service } = require("./utils/SNS_service")
+const { default: webPush } = require("./utils/webpush")
 
 const { PORT , FORNTEND_URL } = process.env;
 const server = http.createServer( app )
@@ -61,7 +62,7 @@ io.on("connection", (socket) => {
             io.to(user.socket_id).emit("update", data);
         } else {
             // Receiver is offline
-            // SNS_service(receiver, message, sender , socket.handshake.address );
+            await SNS_message_service( receiver, message, sender , socket.handshake.address );
             logger( { message:`SNS service is called for receiver: ${receiver} , message: ${message} ,sender:${sender}.` , time:new Date() , ip : socket.handshake.address } )
         }
     });

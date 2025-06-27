@@ -239,10 +239,10 @@ userRouter.post("/subscribe", async (req, res) => {
 
         const payload = JSON.stringify({
             title:"Welcome to WeChat",
-            message:"your new messaging platform..."
+            message:"your new messaging platform..."    
         })
         
-        webPush.sendNotification( subscription , payload )
+        // webPush.sendNotification( subscription , payload )
 
         res.send({ success: true });
 
