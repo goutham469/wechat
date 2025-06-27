@@ -93,4 +93,15 @@ adminRouter.get("/users" , async(req,res)=>{
     }
 })
 
+adminRouter.post("/notify" , async (req,res) => {
+    try{
+        
+    }catch(err){
+        res.send({
+            success:false,
+            error:err.message
+        })
+    }
+})
+
 module.exports = adminRouter;

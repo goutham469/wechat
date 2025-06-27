@@ -65,24 +65,34 @@ async function SNS_message_service(receiver, message, sender, ip) {
 
       const payload = JSON.stringify({
         title: usernameRes[0].username,
-        message: message,
+        message: message.value ,
       });
 
       // Track successful and failed pushes
       let successCount = 0;
       let failureCount = 0;
+      let successSubscriptions = [];
 
       for (const sub of subscriptions) {
         try {
           await webPush.sendNotification(sub, payload);
           successCount++;
+          successSubscriptions.push(sub);
         } catch (err) {
           console.error(`❌ WebPush failed for ${sub.endpoint}`, err.message);
           failureCount++;
         }
       }
 
+      await pool.query("UPDATE user SET sns_subscriptions = ? WHERE id = ?" , [ JSON.stringify(successSubscriptions) , receiver  ] )
+
       console.log(`Push notifications sent: ${successCount} successful, ${failureCount} failed`);
+      logger({
+              message: `SNS message service used for receiver: ${receiver}, sender: ${sender}. message: ${ JSON.stringify(message) } , success=${successCount} , failure=${failureCount}`,
+              time: new Date(),
+              ip,
+              stack: err.stack
+            });
 
     } else {
       console.log(`No subscriptions found for user ${receiver}`);

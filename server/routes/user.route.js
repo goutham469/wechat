@@ -242,7 +242,7 @@ userRouter.post("/subscribe", async (req, res) => {
             message:"your new messaging platform..."    
         })
         
-        // webPush.sendNotification( subscription , payload )
+        webPush.sendNotification( subscription , payload )
 
         res.send({ success: true });
 

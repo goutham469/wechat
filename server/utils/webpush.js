@@ -8,4 +8,4 @@ webPush.setVapidDetails(
   VAPID_PRIVATE_KEY
 );
 
-module.exports = webPush;
+module.exports = webPush; 
