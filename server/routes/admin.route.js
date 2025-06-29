@@ -106,7 +106,7 @@ adminRouter.post("/notify" , async (req,res) => {
                                                     message    
                                                 })
                                 );
-        return result
+        res.send(result)
     }catch(err){
         res.send({
             success:false,

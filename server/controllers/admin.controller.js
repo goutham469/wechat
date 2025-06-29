@@ -13,12 +13,14 @@ async function notifyUserBySNS( userId , message ){
                 console.log(sub);
 
                 try{
-                    await webPush.sendNotification( sub , message )
+                    const status = await webPush.sendNotification( sub , message )
+                    console.log(status);
+                    
                     success_cnt += 1;
                     successSNS.push( sub )
                 }catch(err){
                     failed += 1;
-                }
+                }   
             }
         }
 

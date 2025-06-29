@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 import { API } from '../utils/API'
 import { IoPersonCircleSharp } from "react-icons/io5";
+import { toast } from 'react-toastify'
 
 function AllUsers() {
   const [users , setUsers] = useState([])
@@ -53,8 +54,12 @@ function User( { user , idx } )
     return ans.toLocaleString()
   }
 
-  async function sendMessage(){
-    await API.admin_send_message( message , user.id )
+  async function sendMessage(e){
+    e.preventDefault();
+    
+    const result = await API.admin_send_message( message , user.id )
+    console.log(result)
+    toast.success( JSON.stringify(result) )
     setIsFormOpen(false)
   }
 
@@ -72,7 +77,7 @@ function User( { user , idx } )
                     />
                     <button
                       className='m-1 p-1 bg-cyan-500 rounded-md cursor-pointer'
-                      onClick={sendMessage}
+                      onClick={(e)=>sendMessage(e)}
                     >Submit</button>
                   </form>
                   :
