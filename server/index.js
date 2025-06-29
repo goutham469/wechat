@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
  
     socket.on("send-message", async (data) => {
         const { receiver, message, sender, chatId } = data;
-        logger( { message:`new message came to send .Data receiver: ${receiver} , message: ${message} ,sender:${sender} ,chatId:${chatId}` , time:new Date() , ip : socket.handshake.address } )
+        logger( { message:`new message came to send .Data receiver: ${receiver} , message: ${JSON.stringify( message )} ,sender:${sender} ,chatId:${chatId}` , time:new Date() , ip : socket.handshake.address } )
 
         const user = online_users.find( u => u.user_id === receiver );
 
@@ -63,7 +63,8 @@ io.on("connection", (socket) => {
         } else {
             // Receiver is offline
             await SNS_message_service( receiver, message, sender , socket.handshake.address );
-            logger( { message:`SNS service is called for receiver: ${receiver} , message: ${message} ,sender:${sender}.` , time:new Date() , ip : socket.handshake.address } )
+            
+            logger( { message:`SNS service is called for receiver: ${receiver} , message: ${JSON.stringify( message )} ,sender:${sender}.` , time:new Date() , ip : socket.handshake.address } )
         }
     });
 

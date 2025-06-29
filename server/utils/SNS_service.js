@@ -1,6 +1,6 @@
 const pool = require("./db");
 const { SNS_logger, logger } = require("./logger");
-const { default: webPush } = require("./webpush");
+const webPush = require("./webpush");
 
 async function SNS_service( receiver, message, sender ,ip )
 {
@@ -33,35 +33,11 @@ async function SNS_message_service(receiver, message, sender, ip) {
 
     console.log(subscriptionRes, usernameRes);
 
-    // Add validation for query results
-    if (!subscriptionRes || subscriptionRes.length === 0) {
-      console.log(`No user found with receiver ID: ${receiver}`);
-      return;
-    }
-
-    if (!usernameRes || usernameRes.length === 0) {
-      console.log(`No user found with sender ID: ${sender}`);
-      return;
-    }
-
+ 
     const rawSubscriptions = subscriptionRes[0]?.sns_subscriptions;
 
     if (rawSubscriptions) {
-      let subscriptions;
-      
-      // Add JSON parsing error handling
-      try {
-        subscriptions = JSON.parse(rawSubscriptions);
-      } catch (parseErr) {
-        console.error(`Failed to parse subscriptions for user ${receiver}:`, parseErr.message);
-        return;
-      }
-
-      // Validate subscriptions is an array
-      if (!Array.isArray(subscriptions)) {
-        console.error(`Subscriptions is not an array for user ${receiver}`);
-        return;
-      }
+      let subscriptions = JSON.parse(rawSubscriptions);
 
       const payload = JSON.stringify({
         title: usernameRes[0].username,
@@ -75,7 +51,9 @@ async function SNS_message_service(receiver, message, sender, ip) {
 
       for (const sub of subscriptions) {
         try {
-          await webPush.sendNotification(sub, payload);
+          const result = await webPush.sendNotification(sub, payload);
+          console.warn(result);
+          
           successCount++;
           successSubscriptions.push(sub);
         } catch (err) {
@@ -87,24 +65,14 @@ async function SNS_message_service(receiver, message, sender, ip) {
       await pool.query("UPDATE user SET sns_subscriptions = ? WHERE id = ?" , [ JSON.stringify(successSubscriptions) , receiver  ] )
 
       console.log(`Push notifications sent: ${successCount} successful, ${failureCount} failed`);
-      logger({
-              message: `SNS message service used for receiver: ${receiver}, sender: ${sender}. message: ${ JSON.stringify(message) } , success=${successCount} , failure=${failureCount}`,
-              time: new Date(),
-              ip,
-              stack: err.stack
-            });
+      
 
     } else {
       console.log(`No subscriptions found for user ${receiver}`);
     }
   } catch (err) {
     console.error('SNS message service error:', err);
-    logger({
-      message: `SNS message service error for receiver: ${receiver}, sender: ${sender}. Error: ${err.message}`,
-      time: new Date(),
-      ip,
-      stack: err.stack
-    });
+    
   }
 }
 
