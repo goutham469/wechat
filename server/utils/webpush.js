@@ -7,5 +7,5 @@ webPush.setVapidDetails(
   VAPID_PUBLIC_KEY,
   VAPID_PRIVATE_KEY
 );
-
+ 
 module.exports = webPush; 

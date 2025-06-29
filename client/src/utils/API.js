@@ -192,6 +192,23 @@ async function update_profile( user_id , form ) {
     }
 }
 
+
+async function admin_send_message( message , userId ){
+    try{
+        const response = await fetch(`${VITE_SERVER_URL}/admin/notify`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({ message , userId})
+        })
+        return await response.json()
+    }catch(err){
+        return {
+            success:false,
+            error:err.message
+        }
+    }
+}
+
 // error reporting system
 async function report_error(error)
 {
@@ -211,4 +228,14 @@ async function report_error(error)
 
  
 
-export const API = { report_error , login_with_Google_OAUTH , getOTP , login_with_username , SQLQuery , LogOut , getLogs , deleteLogs , getAllUsers , searchUser , loadChat , getUserChats , getMessages , sendMessage , update_profile };
+export const API = {
+     report_error ,
+     login_with_Google_OAUTH , 
+     getOTP , login_with_username , 
+     SQLQuery , LogOut , getLogs , 
+     deleteLogs , getAllUsers , 
+     searchUser , loadChat , 
+     getUserChats , getMessages , 
+     sendMessage , update_profile,
+     admin_send_message
+     };

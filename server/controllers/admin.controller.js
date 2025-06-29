@@ -1,20 +1,43 @@
 const  pool  = require("../utils/db")
-// const { default: webPush } = require("./webpush");
+const webPush = require("../utils/webpush");
 
-// async function notifyUserBySNS( userId , message ){
-//     try{
-//         const [ subs ] = await pool.query("SELECT sns_subscriptions FROM user WHERE id = ?" , [ userId ] )
+async function notifyUserBySNS( userId , message ){
+    try{
+        const [ subs ] = await pool.query("SELECT sns_subscriptions FROM user WHERE id = ?" , [ userId ] )
+        // console.log(subs)
 
-//         if(subs[0] && subs[0].sns_subscriptions ){
-//             for(const sub of subs[0].sns_subscriptions ){
-//                 await webPush
-//             }
-//         }
+        let success_cnt = 0,failed=0,successSNS=[];
 
-//     }catch(err){
-//         return {
-//             success:false,
-//             error:err.message
-//         }
-//     }
-// }
+        if(subs[0] && subs[0].sns_subscriptions ){
+            for(const sub of JSON.parse( subs[0].sns_subscriptions ) ){
+                console.log(sub);
+
+                try{
+                    await webPush.sendNotification( sub , message )
+                    success_cnt += 1;
+                    successSNS.push( sub )
+                }catch(err){
+                    failed += 1;
+                }
+            }
+        }
+
+        await pool.query("UPDATE user SET sns_subscriptions = ? WHERE id = ?" , [ JSON.stringify(successSNS) ] )
+
+        return{
+            success:true,
+            success_cnt:success_cnt,
+            failed:failed,
+            successSNS:successSNS
+        }
+
+    }catch(err){
+        console.log(err)
+        return {
+            success:false,
+            error:err.message
+        }
+    }
+}
+
+module.exports = { notifyUserBySNS }

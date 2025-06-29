@@ -2,6 +2,7 @@ const express = require("express")
 const adminRouter = express.Router()
 const pool = require("../utils/db")
 const { logger } = require("../utils/logger")
+const { notifyUserBySNS } = require("../controllers/admin.controller")
 
 adminRouter.get("/" , (req,res) => res.send("Admin Route"))
 
@@ -95,7 +96,17 @@ adminRouter.get("/users" , async(req,res)=>{
 
 adminRouter.post("/notify" , async (req,res) => {
     try{
-        
+        const { userId , message } = req.body;
+        console.log(userId , message );
+
+        const result = await notifyUserBySNS( 
+                                userId , 
+                                JSON.stringify({
+                                                    title:"Hello user",
+                                                    message    
+                                                })
+                                );
+        return result
     }catch(err){
         res.send({
             success:false,

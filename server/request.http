@@ -59,3 +59,11 @@ Content-Type: application/json
         "value":"hi there"
     }
 }
+### SNS notify
+POST http://localhost:4000/admin/notify
+Content-Type: application/json
+
+{
+    "userId":1,
+    "message":"Hi goutham"
+}

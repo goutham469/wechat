@@ -8,7 +8,7 @@ const login_verification_template = require("../templates/loginWithEmail");
 const { logger } = require("../utils/logger");
 const { checkChatInstanceExistence, getChatMessagesWithOtherUserByPagination, createChatInstance, getUserChats, getChatMessagesByChatIdByPagination } = require("../controllers/chat.controller");
 const { insertMessage } = require("../controllers/message.controller");
-const { default: webPush } = require("../utils/webpush");
+const webPush = require("../utils/webpush");
 const userRouter = express.Router();
 
 userRouter.get("/", async (req, res) => {
@@ -241,6 +241,8 @@ userRouter.post("/subscribe", async (req, res) => {
             title:"Welcome to WeChat",
             message:"your new messaging platform..."    
         })
+        
+
         
         webPush.sendNotification( subscription , payload )
 

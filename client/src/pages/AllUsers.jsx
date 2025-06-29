@@ -7,12 +7,6 @@ import { IoPersonCircleSharp } from "react-icons/io5";
 function AllUsers() {
   const [users , setUsers] = useState([])
 
-  function convert_time(time)
-  {
-    const ans = new Date(time)
-    return ans.toLocaleString()
-  }
-
   useEffect(()=>{
     async function load_users() {
       const result = await API.getAllUsers()
@@ -26,6 +20,7 @@ function AllUsers() {
       <table style={{border:"2px solid black",borderCollapse:"collapse"}}>
         <thead>
           <th style={{border:"1px solid black"}}>s.no</th>
+          <th style={{border:"1px solid black"}}>Message</th>
           <th style={{border:"1px solid black"}}>profile_pic</th>
           <th style={{border:"1px solid black"}}>name</th>
           <th style={{border:"1px solid black"}}>email</th>
@@ -39,8 +34,54 @@ function AllUsers() {
         </thead>
         <tbody>
           {
-            users.map( (user,idx) => <tr>
+            users.map( (user,idx) => <User user={user} idx={idx} /> )
+          }
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function User( { user , idx } )
+{
+  const [ isFormOpen , setIsFormOpen ] = useState(false);
+  const [ message , setMessage ] = useState()
+
+   function convert_time(time)
+  {
+    const ans = new Date(time)
+    return ans.toLocaleString()
+  }
+
+  async function sendMessage(){
+    await API.admin_send_message( message , user.id )
+    setIsFormOpen(false)
+  }
+
+  return  <tr>
               <td style={{border:"1px solid black"}}>{idx+1}</td>
+              <td style={{border:"1px solid black"}}>
+                {
+                  isFormOpen ?
+                  <form>
+                    <textarea
+                      width="100px"
+                      height="100px"
+                      onChange={ e => setMessage(e.target.value) }
+                      className='bg-cyan-300 p-2 rounded-lg'
+                    />
+                    <button
+                      className='m-1 p-1 bg-cyan-500 rounded-md cursor-pointer'
+                      onClick={sendMessage}
+                    >Submit</button>
+                  </form>
+                  :
+                  <button
+                   className='m-1 p-1 bg-cyan-500 rounded-md cursor-pointer'
+                   onClick={ e => setIsFormOpen(true) }
+                   >Message</button>
+                }
+              </td>
               <td style={{border:"1px solid black"}}>{ user.profile_pic ? <img src={user.profile_pic} width="40px" height="40px"/> : <IoPersonCircleSharp /> }</td>
               <td style={{border:"1px solid black"}}>{user.name}</td>
               <td style={{border:"1px solid black"}}>{user.email}</td>
@@ -57,12 +98,7 @@ function AllUsers() {
                   }
                 </pre>
               </td>
-            </tr> )
-          }
-        </tbody>
-      </table>
-    </div>
-  )
+            </tr>
 }
 
 export default AllUsers
