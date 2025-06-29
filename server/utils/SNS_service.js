@@ -41,7 +41,7 @@ async function SNS_message_service(receiver, message, sender, ip) {
 
       const payload = JSON.stringify({
         title: usernameRes[0].username,
-        message: message.value ,
+        message: message.message_value ,
       });
 
       // Track successful and failed pushes
