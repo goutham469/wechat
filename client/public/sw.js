@@ -3,7 +3,7 @@ self.addEventListener("push", function (event) {
   console.log("📩 Push Received", data);
 
   const options = {
-    body: data.message,
+    body: data,
     icon: "/icons/notification-icon.png", // use a 192x192 image
     badge: "/icons/badge-icon.png",       // 72x72 for status bar icon (on Android)
     image: data.image || undefined,       // Optional large image preview
