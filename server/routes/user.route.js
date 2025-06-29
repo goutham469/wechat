@@ -244,11 +244,17 @@ userRouter.post("/subscribe", async (req, res) => {
         
 
         
-        webPush.sendNotification( subscription , payload )
+        try{
+            webPush.sendNotification( subscription , payload )
+        }catch(err){
+            console.log(err)
+        }
 
         res.send({ success: true });
 
     } catch (err) {
+        console.log(err);
+
         res.send({
             success: false,
             error: err.message
