@@ -22,7 +22,7 @@ async function notifyUserBySNS( userId , message ){
             }
         }
 
-        await pool.query("UPDATE user SET sns_subscriptions = ? WHERE id = ?" , [ JSON.stringify(successSNS) ] )
+        await pool.query("UPDATE user SET sns_subscriptions = ? WHERE id = ?" , [ JSON.stringify(successSNS) , userId ] )
 
         return{
             success:true,
