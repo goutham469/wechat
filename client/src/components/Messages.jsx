@@ -5,6 +5,7 @@ import { tools } from '../utils/tools'
 import { toast } from 'react-toastify'
 import socket from '../utils/socket'
 import { IoPersonCircleOutline } from 'react-icons/io5'
+import { HiLink } from "react-icons/hi2";
 
 function Messages() {
     const chat = useSelector(state => state.chat)
@@ -116,7 +117,8 @@ function Message({ message, user_id }) {
 }
 
 function Input({ chatId, sender_id, addMessage, receiver_id }) {
-    const [form, setForm] = useState({ message_type: 'p', message_value: '' })
+    const [form, setForm] = useState({})
+    const [mediaUpload, setMediaUpload] = useState(false)
 
     async function sendMessage(e) {
         e.preventDefault()
@@ -133,7 +135,7 @@ function Input({ chatId, sender_id, addMessage, receiver_id }) {
 
         socket.emit("send-message", {
             sender: sender_id,
-            message: form,
+            message: newMessage,
             chatId,
             receiver: receiver_id
         })
@@ -143,11 +145,24 @@ function Input({ chatId, sender_id, addMessage, receiver_id }) {
 
     return (
         <form onSubmit={sendMessage} className="flex gap-2">
-            
+            <div>
+                {
+                    mediaUpload ?
+                        <PopUpWindowForFileUpload
+                            sender_id={sender_id}
+                            receiver_id={receiver_id}
+                            chatId={chatId}
+                            addMessage={addMessage}
+                            closeWindow={() => setMediaUpload(false)}
+                        />
+                        :
+                        <HiLink size={30} onClick={() => setMediaUpload(true)} className='cursor-pointer' />
+                }
+            </div>
             <input
                 type="text"
-                value={form.message_value}
-                onChange={e => setForm({ ...form, message_value: e.target.value })}
+                value={form.message_value || ''}
+                onChange={e => setForm({ message_type: 'p', message_value: e.target.value })}
                 placeholder="Type a message..."
                 className="flex-1 p-2 rounded-md border border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
@@ -157,5 +172,81 @@ function Input({ chatId, sender_id, addMessage, receiver_id }) {
         </form>
     )
 }
+
+
+function PopUpWindowForFileUpload({ sender_id, receiver_id, chatId, addMessage, closeWindow }) {
+    const [file, setFile] = useState({})
+
+    async function uploadFile(e) {
+        e.preventDefault()
+        const selectedFile = e.target.files[0]
+        if (!selectedFile) return toast.error("No file selected")
+
+        const data = await tools.AWS_upload_file(selectedFile)
+        if (!data.success) {
+            return toast.error(data.error)
+        }
+
+        const fileMessage = {
+            message_type: file.type === 'image' ? 'img' : file.type === 'video' ? 'video' : 'file',
+            message_value: data.data.file_url,
+            sent_time: new Date(),
+            sent_by: sender_id,
+            id: Date.now()
+        }
+
+        addMessage(fileMessage)
+
+        socket.emit("send-message", {
+            sender: sender_id,
+            message: fileMessage,
+            chatId,
+            receiver: receiver_id
+        })
+
+        toast.success("File sent")
+        closeWindow()
+    }
+
+    return (
+        <form>
+            {
+                !file.type && (
+                    <div className='flex gap-2'>
+                        {[
+                            { type: 'image', url: '/icons/image.png' },
+                            { type: 'video', url: '/icons/video.png' },
+                            { type: 'file', url: '/icons/doc.png' }
+                        ].map(media => (
+                            <img
+                                key={media.type}
+                                src={media.url}
+                                alt={media.type}
+                                className='w-8 h-8 rounded cursor-pointer'
+                                onClick={() => setFile({ type: media.type })}
+                            />
+                        ))}
+                    </div>
+                )
+            }
+
+            {
+                file.type && (
+                    <div className='mt-2'>
+                        <input type="file" onChange={uploadFile} className='bg-cyan-500 p-1 m-1 rounded-md w-fit' />
+                        <button
+                            type="button"
+                            onClick={closeWindow}
+                            className='ml-2 text-red-500 underline cursor-pointer'
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                )
+            }
+        </form>
+    )
+}
+
 
 export default Messages

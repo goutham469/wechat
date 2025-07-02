@@ -1,5 +1,5 @@
 import React, { useEffect , useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { API } from '../utils/API';
 import { IoLogOut } from "react-icons/io5";
 import { IoPersonCircle } from 'react-icons/io5'
@@ -7,6 +7,7 @@ import { MdEdit } from "react-icons/md"
 import { tools } from '../utils/tools'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
+import { user_slice_login } from '../redux/slices/userSlice';
 
 function Profile( ) {
 
@@ -14,6 +15,7 @@ function Profile( ) {
   const [form, setForm] = useState({})
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (!user?.id)
@@ -29,9 +31,19 @@ function Profile( ) {
         dob: user.dob || '',
         username: user.username || '',
         profile_pic: user.profile_pic || '',
+        password:user.password || ''
       })
     }
-  }, [user, navigate])
+  }, [ user ])
+
+  async function getUserData(){
+    const userDetails = await API.login_with_Google_OAUTH( user.email )
+    dispatch( user_slice_login( userDetails.data.user ) )
+  }
+
+  useEffect(()=>{
+    getUserData()
+  },[])
 
   async function update()
   {
@@ -105,8 +117,8 @@ function Profile( ) {
       >
         <IoLogOut size={30} />
         <button className='cursor-pointer'>
-          Log Out
-      </button>
+            Log Out
+        </button>
       </div>
 
 
@@ -164,7 +176,7 @@ function Profile( ) {
           onSubmit={(e) => e.preventDefault()}
         >
           {
-            ['name', 'dob', 'username'].map(key => (
+            ['name', 'dob', 'username' , 'password' ].map(key => (
               <div key={key} className='m-1'>
                 <label>{key}</label>
                 <input
@@ -179,7 +191,7 @@ function Profile( ) {
           }
 
           {
-            (user.name !== form.name || user.dob !== form.dob || user.username !== form.username)
+            (user.name !== form.name || user.dob !== form.dob || user.username !== form.username || user.password !== form.password)
               ? <button
                   type='button'
                   className='bg-cyan-600 rounded-md p-1 m-1 cursor-pointer text-white'

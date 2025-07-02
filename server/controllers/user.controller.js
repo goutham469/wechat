@@ -20,7 +20,7 @@ async function updateProfile(userId, form)
 {
     try {
         const fields = Object.keys(form)
-        const mutable_fields = ['name', 'username', 'dob', 'profile_pic']
+        const mutable_fields = ['name', 'username', 'dob', 'profile_pic' , 'password' ]
 
         // Filter only allowed fields
         const form_updates = fields.filter(field => mutable_fields.includes(field))
@@ -36,7 +36,7 @@ async function updateProfile(userId, form)
                 }else{
                     await pool.query(
                                         `UPDATE user SET ${field} = ? WHERE id = ?`,
-                                        [form[field], userId]
+                                        [ new Date(form[field]) , userId]
                                     )
                 }
             }else{
