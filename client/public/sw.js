@@ -3,17 +3,17 @@ self.addEventListener("push", function (event) {
   console.log("📩 Push Received", data);
 
   const options = {
-    body: data,
+    body: data.message ,
     icon: "/icons/notification-icon.png", // use a 192x192 image
     badge: "/icons/badge-icon.png",       // 72x72 for status bar icon (on Android)
     image: data.image || undefined,       // Optional large image preview
     vibrate: [200, 100, 200],
-    tag: "wechat-notification",           // avoid duplicate stacking
+    tag: data.type || "wechat-notification",           // avoid duplicate stacking
     renotify: true,
     data: {
       url: data.url || "https://wechat.iamgoutham.in", // fallback url
     },
-    actions: [
+    actions: data.type == 'chatMessage' ? [
       {
         action: "open_chat",
         title: "💬 Open Chat",
@@ -24,7 +24,29 @@ self.addEventListener("push", function (event) {
         title: "❌ Dismiss",
         icon: "/icons/close-icon.png",
       },
-    ],
+    ]
+    :
+    data.type == "welcomeMessage" ?
+    [
+      {
+        action: "open_chat",
+        title: "💬 Open Chat",
+        icon: "/icons/chat-icon.png",
+      },
+      {
+        action: "dismiss",
+        title: "❌ Dismiss",
+        icon: "/icons/close-icon.png",
+      }
+    ]
+    : data.type == "adminMessage" &&
+    [
+      {
+        action: "open_site",
+        title:"Message From bot",
+        icon: "/icons/chat-icon.png",
+      }
+    ]
   };
 
   event.waitUntil(

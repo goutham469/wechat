@@ -103,7 +103,8 @@ adminRouter.post("/notify" , async (req,res) => {
                                 userId , 
                                 JSON.stringify({
                                                     title:"Hello user",
-                                                    message    
+                                                    message:message,
+                                                    type:"adminMessage"
                                                 })
                                 );
         res.send(result)

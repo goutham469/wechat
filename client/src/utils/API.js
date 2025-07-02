@@ -179,9 +179,9 @@ async function sendMessage( chatId , sender , message ){
 async function update_profile( user_id , form ) {
     try{
         const result = await fetch(`${VITE_SERVER_URL}/user/update-profile`,{
-            method:"POST",
+            method:"PUT",
             headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(form)
+            body:JSON.stringify({ userId:user_id , form:form })
         })
         return await result.json()
     }catch(err){
@@ -192,6 +192,17 @@ async function update_profile( user_id , form ) {
     }
 }
 
+async function get_notifications( userId ){
+    try{
+        const result = await fetch(`${VITE_SERVER_URL}/user/get-my-notifications?userId=${userId}`)
+        return await result.json()
+    }catch(err){
+        return {
+            success:false,
+            error:err.message
+        }
+    }
+}
 
 async function admin_send_message( message , userId ){
     try{
@@ -229,13 +240,12 @@ async function report_error(error)
  
 
 export const API = {
-     report_error ,
      login_with_Google_OAUTH , 
      getOTP , login_with_username , 
-     SQLQuery , LogOut , getLogs , 
-     deleteLogs , getAllUsers , 
+     LogOut  ,  
      searchUser , loadChat , 
      getUserChats , getMessages , 
-     sendMessage , update_profile,
-     admin_send_message
+     sendMessage , update_profile,get_notifications,
+
+     report_error, admin_send_message ,SQLQuery, getAllUsers ,deleteLogs, getLogs
      };

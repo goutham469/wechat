@@ -143,6 +143,7 @@ function Input({ chatId, sender_id, addMessage, receiver_id }) {
 
     return (
         <form onSubmit={sendMessage} className="flex gap-2">
+            
             <input
                 type="text"
                 value={form.message_value}

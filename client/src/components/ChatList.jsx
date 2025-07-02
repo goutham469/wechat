@@ -8,12 +8,13 @@ import { chat_slice_setChat } from '../redux/slices/chatSlice'
 import { setLocalState } from '../redux/setLocalState'
 import { FaCircle } from 'react-icons/fa'
 import socket from '../utils/socket'
-import { message_slice_setMessages } from '../redux/slices/messageSlice'
+import { message_slice_append_message, message_slice_setMessages } from '../redux/slices/messageSlice'
 
 function ChatList() {
     const [ chats , setChats ] = useState([])
     const [ loading , setLoading ] = useState(false)
     const user = useSelector( state => state.user )
+    const chat = useSelector( state => state.chat )
     const dispatch = useDispatch()
 
     async function getChats(){
@@ -29,6 +30,7 @@ function ChatList() {
       const handleUpdate = (data) => {
         console.log("New socket message", data)
         
+        // updating last_message in chat list
         setChats(prev =>
           prev.map(chat => {
             if (chat.chat_id === data.chatId) {
@@ -41,6 +43,21 @@ function ChatList() {
             return chat;
           })
         );
+
+        // updating messages redux state , if the chat was open its messages will be updated
+        if(chat.chat_id == data.chatId){
+          // current messages is to be updated
+          console.log(data)
+          const payload = { 
+            chatId:data.chatId , 
+            message_type:data.message.message_type , 
+            message_value:data.message.message_value , 
+            read_by:null , 
+            sent_by:data.sender , 
+            sent_time:new Date()
+           }
+          dispatch( message_slice_append_message(payload) )
+        }
       };
 
       socket.on("update", handleUpdate);
@@ -78,6 +95,7 @@ function ChatListCard( { chat , key } )
     params.set("chat_id" , chat.chat_id)
 
     const messages = await API.getMessages( chat.chat_id , 0 )
+    console.log(messages);
 
     dispatch( chat_slice_setChat(chat) )
     dispatch( message_slice_setMessages(messages) )
@@ -119,6 +137,7 @@ function ChatListCard( { chat , key } )
             <p className="text-sm truncate text-left pl-5">
               {chat.last_message ? JSON.parse(chat.last_message ).message_value : "No conversation yet."}
             </p>
+
           </div>
 }
 

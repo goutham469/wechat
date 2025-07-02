@@ -67,3 +67,17 @@ Content-Type: application/json
     "userId":1,
     "message":"Hi goutham"
 }
+###
+GET http://localhost:4000/user/get-my-notifications?userId=1
+###
+PUT http://localhost:4000/user/update-profile
+Content-Type: application/json
+
+{
+    "userId":1,
+    "form":{
+        "name":"goutham reddy",
+        "username":"ugr@12",
+        "email":"hmail@outlook.in"
+    }
+}

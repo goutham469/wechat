@@ -10,9 +10,13 @@ const messageSlice = createSlice({
         message_slice_setMessages : (state,action) => {
             console.log(action.payload)
             return action.payload
+        },
+        message_slice_append_message : (state,action) => {
+            console.log(action.payload)
+            return [ ...state , action.payload ]
         }
     }
 })
 
-export const { message_slice_setMessages } = messageSlice.actions;
+export const { message_slice_setMessages , message_slice_append_message } = messageSlice.actions;
 export default messageSlice.reducer; 

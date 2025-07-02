@@ -5,10 +5,11 @@ const register_template = require("../templates/register");
 const sendEmail = require("../utils/sendEmail");
 const generateOTP = require("../utils/generateOTP");
 const login_verification_template = require("../templates/loginWithEmail");
-const { logger } = require("../utils/logger");
+const { logger, SNS_logger, SNS_getLogs } = require("../utils/logger");
 const { checkChatInstanceExistence, getChatMessagesWithOtherUserByPagination, createChatInstance, getUserChats, getChatMessagesByChatIdByPagination } = require("../controllers/chat.controller");
 const { insertMessage } = require("../controllers/message.controller");
 const webPush = require("../utils/webpush");
+const { updateProfile } = require("../controllers/user.controller");
 const userRouter = express.Router();
 
 userRouter.get("/", async (req, res) => {
@@ -239,13 +240,24 @@ userRouter.post("/subscribe", async (req, res) => {
 
         const payload = JSON.stringify({
             title:"Welcome to WeChat",
-            message:"your new messaging platform..."    
+            message:"your new messaging platform...",
+            type:"welcomeMessage"
         })
-        
 
         
         try{
-            webPush.sendNotification( subscription , payload )
+            await webPush.sendNotification( subscription , payload )
+
+            await SNS_logger( {
+            receiver:userId,
+            sender:0,
+            message:"your new messaging platform...",
+            time:new Date(),
+            ip:"SYSTEM IP",
+            subscription:subscription.endpoint,
+            payload:payload
+          } )
+
         }catch(err){
             console.log(err)
         }
@@ -261,5 +273,36 @@ userRouter.post("/subscribe", async (req, res) => {
         });
     }
 });
+
+userRouter.put("/update-profile" , async (req,res) => {
+    try{
+        const { userId , form } = req.body;
+        const result = await updateProfile( userId , form )
+        res.send(result)
+    }catch(err){
+        res.send({
+            success:false,
+            error:err.message
+        })
+    }
+})
+
+
+userRouter.get("/get-my-notifications" , async (req,res)=>{
+    try{
+        const {userId} = req.query;
+        console.log(`userID: ${userId} is requesting notifications`);
+
+        const result = await SNS_getLogs( { userId:userId } )
+        res.send(result)
+    }catch(err){
+        res.send({
+            success:false,
+            error:err.message
+        })
+    }
+    
+})
+
 
 module.exports = userRouter;

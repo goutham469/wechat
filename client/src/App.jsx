@@ -14,6 +14,8 @@ import AllUsers from './pages/AllUsers'
 import Logs from './pages/Logs'
 import Search from './components/Search'
 import Settings from './components/Settings'
+import Profile from './components/Profile'
+import UserNotifications from './components/UserNotifications'
 
 function App() {
   const router = createBrowserRouter([
@@ -49,7 +51,21 @@ function App() {
     },
     {
       path:"settings",
-      element:<Settings />
+      element:<Settings />,
+      children:[
+        {
+          path:'',
+          element:<Profile/>
+        },
+        {
+          path:'profile',
+          element:<Profile/>
+        },
+        {
+          path:'notifications',
+          element:<UserNotifications/>
+        }
+      ]
     },
     {
       path:'search',

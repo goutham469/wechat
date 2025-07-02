@@ -42,6 +42,7 @@ async function SNS_message_service(receiver, message, sender, ip) {
       const payload = JSON.stringify({
         title: usernameRes[0].username,
         message: message.message_value ,
+        type : "chatMessage"
       });
 
       // Track successful and failed pushes
@@ -52,12 +53,26 @@ async function SNS_message_service(receiver, message, sender, ip) {
       for (const sub of subscriptions) {
         try {
           const result = await webPush.sendNotification(sub, payload);
-          console.warn(result);
+          // console.warn("push notification success:- \n",result);
+
+          await SNS_logger( {
+            receiver:receiver,
+            sender:sender,
+            message:JSON.stringify( message ),
+            time:new Date(),
+            ip:ip,
+            subscription:sub.endpoint,
+            payload: payload
+          } )
           
           successCount++;
           successSubscriptions.push(sub);
         } catch (err) {
-          console.error(`❌ WebPush failed for ${sub.endpoint}`, err.message);
+          if( [ 201 , 413,429,500,503 ].includes(err.statusCode) ){
+            successSubscriptions.push( sub )
+          }
+
+          console.error(`❌ WebPush failed for ${sub.endpoint}`, err.message , err.statusCode );
           failureCount++;
         }
       }
