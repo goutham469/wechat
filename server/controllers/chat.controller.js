@@ -79,9 +79,13 @@ async function getChatMessagesByChatIdByPagination( chatId , page = 0) {
         const limit = 50;
         const offset = limit * page;
 
+        // const [messages] = await pool.query(
+        //     "SELECT * FROM messages WHERE chat_id = ? ORDER BY sent_time DESC LIMIT ? OFFSET ?",
+        //     [ chatId , limit, offset]
+        // );
         const [messages] = await pool.query(
-            "SELECT * FROM messages WHERE chat_id = ? ORDER BY sent_time ASC LIMIT ? OFFSET ?",
-            [ chatId , limit, offset]
+            "SELECT * FROM messages WHERE chat_id = ? ORDER BY sent_time ASC",
+            [ chatId ]
         );
     
         return messages;

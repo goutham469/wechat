@@ -45,7 +45,7 @@ async function updateProfile(userId, form)
                     [form[field], userId]
                 )
             }
-        }
+        }   
 
         return {
             success: true,
